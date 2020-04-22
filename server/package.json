@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "keywords": ["GraphQL"],
+  "author": "Ruben E Acosta",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server": "^2.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  }
+}
