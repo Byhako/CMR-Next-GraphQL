@@ -7,11 +7,15 @@
     "start": "node .",
     "dev": "nodemon ."
   },
-  "keywords": ["GraphQL"],
+  "keywords": [
+    "GraphQL"
+  ],
   "author": "Ruben E Acosta",
   "license": "MIT",
   "dependencies": {
-    "apollo-server": "^2.12.0"
+    "apollo-server": "^2.12.0",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.9.10"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
