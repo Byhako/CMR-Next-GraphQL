@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario');
-const bcryptjs = require('bcryptjs');
+const Producto = require('../models/Producto');
+const bcryptjs = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'var.env' });
 
@@ -13,6 +14,23 @@ const resolvers = {
     obtenerUsuario: async (_, { token }) => {
       const usuarioId = await jwt.verify(token, process.env.SECRETO);
       return usuarioId;
+    },
+    obtenerProductos: async () => {
+      try {
+        const productos = await Producto.find({});
+        return productos;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerProducto: async (_, { id }) => {
+      // Revisar si extiste
+      const producto = await Producto.findById(id);
+
+      if(!producto) {
+        throw new Error('Producto no encontrado.');
+      }
+      return producto;
     }
   },
   Mutation: {
@@ -53,6 +71,40 @@ const resolvers = {
 
       // Token
       return { token: crearToken(existeUsuario, process.env.SECRETO, '24h') }
+    },
+    nuevoProducto: async (_, { input }) => {
+      try {
+        const producto = new Producto(input);
+        // Guardar en base de datos
+        const resultado = await producto.save();
+        return resultado;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    autenticarProducto: async (_, { id, input }) => {
+       // Revisar si extiste
+      let producto = await Producto.findById(id);
+
+      if(!producto) {
+        throw new Error('Producto no encontrado.');
+      }
+
+      // Guardar en base de datos
+      producto = await Producto.findOneAndUpdate({ _id: id }, input, { new: true });
+      return producto;
+    },
+    eliminarProducto: async (_, { id }) => {
+      // Revisar si extiste
+      let producto = await Producto.findById(id);
+
+      if(!producto) {
+        throw new Error('Producto no encontrado.');
+      }
+
+      // Eliminar
+      await Producto.findOneAndDelete({ _id: id});
+      return 'Producto eliminado.';
     }
   }
 }
