@@ -18,6 +18,11 @@ const typeDefs = gql`
     """Productos"""
     obtenerProductos: [Producto]
     obtenerProducto(id: ID!): Producto
+
+    # Clientes
+    obtenerClientes: [Cliente]
+    obtenerClientesVendedor(id: ID!): [Cliente]
+    obtenerCliente(id: ID!): cliente
   }
   type Producto {
     id: ID
@@ -25,6 +30,15 @@ const typeDefs = gql`
     existencia: Int
     precio: Float
     creado: String
+  }
+  type Cliente {
+    id: ID
+    nombre: String
+    apellido: String
+    empresa: String
+    email: String
+    telefono: String
+    vendedor: ID
   }
 
   input UsuarioInput {
@@ -42,6 +56,13 @@ const typeDefs = gql`
     existencia: Int!
     precio: Float!
   }
+  input ClienteInput {
+    nombre: String!
+    apellido: String!
+    empresa: String!
+    email: String!
+    telefono: String
+  }
 
   type Mutation {
   """Crear usuario"""
@@ -51,6 +72,10 @@ const typeDefs = gql`
     nuevoProducto(input: ProductoInput): Producto
     actualizarProducto(id: ID!, input: ProductoInput): Producto
     eliminarProducto(id: ID!): String
+    # Clientes
+    nuevoCliente(input: ClienteInput): Cliente
+    actualizarCliente(id: ID!, input: ClienteInput): Cliente
+    eliminarCliente(id: ID!): String
   }
 `;
 

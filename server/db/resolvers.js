@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario');
 const Producto = require('../models/Producto');
+const Cliente = require('../models/Cliente');
 const bcryptjs = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'var.env' });
@@ -31,7 +32,40 @@ const resolvers = {
         throw new Error('Producto no encontrado.');
       }
       return producto;
-    }
+    },
+    obtenerClientes: async () => {
+      try {
+        const clientes = await Cliente.find({});
+        return clientes;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerClientesVendedor: async (_, {}, ctx) => {
+      try {
+        const clientes = await Cliente.find({ vendedor: ctx.usuario.id.toSting()});
+        return clientes;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerCliente: async (_, { id }, ctx) => {
+      try {
+        // Verificar si exite
+        const cliente = await Cliente.findById(id);
+        if (!cliente) {
+          throw new Error('El cliente no existe.');
+        }
+  
+        // Quien lo creo puede verlo
+        if (cliente.vendedor-toString() !== ctx.usuario.id) {
+          throw new Error('Acceso denegado!');
+        }
+        return cliente;
+      } catch (error) {
+        console.error(error);
+      }
+    },
   },
   Mutation: {
     nuevoUsuario: async (_, { input }) => {
@@ -82,7 +116,7 @@ const resolvers = {
         console.error(error);
       }
     },
-    autenticarProducto: async (_, { id, input }) => {
+    actualizarProducto: async (_, { id, input }) => {
        // Revisar si extiste
       let producto = await Producto.findById(id);
 
@@ -105,7 +139,58 @@ const resolvers = {
       // Eliminar
       await Producto.findOneAndDelete({ _id: id});
       return 'Producto eliminado.';
-    }
+    },
+    nuevoCliente: async (_, { input }, ctx) => {
+      const { email } = input;
+      // Verificar si el cliente exite
+      const cliente = await Cliente.findOne({email});
+      if (cliente) {
+        throw new Error('El cliente ya existe.');
+      }
+      // Asignar el vendedor
+      const nuevoCliente = new Cliente(input);
+      nuevoCliente.vendedor = ctx.usuario.id;
+
+      // Guardarlo en la base de datos
+      try {
+        const resultado = await nuevoCliente.save();
+        return resultado;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    actualizarCliente: async (_, { id, input }, ctx) => {
+      // Revisar si extiste
+      let cliente = await Cliente.findById(id);
+      if(!cliente) {
+        throw new Error('Cliente no encontrado.');
+      }
+
+      // Verificar si el vendedor es quien edita
+      if (cliente.vendedor !== ctx.usuario.id) {
+        throw new Error('Acceso denegado.');
+      }
+
+      // Guardar en base de datos
+      cliente = await Cliente.findOneAndUpdate({ _id: id }, input, { new: true });
+      return cliente;
+    },
+    eliminarCliente: async (_, { id }, ctx) => {
+      // Revisar si extiste
+      let cliente = await Cliente.findById(id);
+      if(!cliente) {
+        throw new Error('Cliente no encontrado.');
+      }
+
+      // Verificar si el vendedor es quien edita
+      if (cliente.vendedor !== ctx.usuario.id) {
+        throw new Error('Acceso denegado.');
+      } 
+
+      // Eliminar
+      await Cliente.findOneAndDelete({ _id: id});
+      return 'Cliente eliminado.';
+    },
   }
 }
 
