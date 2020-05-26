@@ -1,6 +1,7 @@
 const Usuario = require('../models/Usuario');
 const Producto = require('../models/Producto');
 const Cliente = require('../models/Cliente');
+const Pedido = require('../models/Pedido');
 const bcryptjs = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'var.env' });
@@ -183,14 +184,48 @@ const resolvers = {
       }
 
       // Verificar si el vendedor es quien edita
-      if (cliente.vendedor !== ctx.usuario.id) {
+      if (cliente.vendedor.toSting() !== ctx.usuario.id) {
         throw new Error('Acceso denegado.');
-      } 
+      }
 
       // Eliminar
       await Cliente.findOneAndDelete({ _id: id});
       return 'Cliente eliminado.';
     },
+    nuevoPedido: async (_, { input }, ctx) => {
+      const { cliente } = input;
+      // Verificar si cliente existe
+      let clienteExiste = await Cliente.findById(cliente);
+      if(!clienteExiste) {
+        throw new Error('Cliente no encontrado.');
+      }
+      // Verificar si cliete es del vendedor
+      if (clienteExiste.vendedor.toSting() !== ctx.usuario.id) {
+        throw new Error('Acceso denegado.');
+      }
+      // Revisar si hay stock
+      for await (const articulo of input.pedido) {
+        const { id } = articulo;
+
+        const producto = await Producto.findById(id);
+
+        if (articulo.cantidad > producto.existencia) {
+          throw new Error(`El ${producto.nombre} excede la candidad disponible.`);
+        } else {
+          // Restar cantidad en disponible
+          producto.existencia = producto.existencia - articulo.cantidad;
+          await producto.save();
+        }
+      }
+      // Crear pedido
+      const pedido = new Pedido(input);
+      // Asignar vendedor
+      pedido.vendedor = ctx.usuario.id;
+
+      // Guardar en DB
+      const resultado = pedido.save();
+      return resultado;
+    }
   }
 }
 
