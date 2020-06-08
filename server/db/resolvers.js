@@ -67,6 +67,49 @@ const resolvers = {
         console.error(error);
       }
     },
+    obtenerPedidos: async () => {
+      try {
+        const pedidos = await Pedido.find({});
+        return pedidos;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerPedidosVendedor: async (_, {}, ctx) => {
+      try {
+        const pedidos = await Pedido.find({ vendedor: ctx.usuario.id });
+        return pedidos;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerPedido: async (_, { id }, ctx) => {
+      try {
+        // Si el pedido exite
+        const pedido = await Pedido.findById(id);
+        if (!pedido) {
+          throw new Error('El pedido no exite.')
+        }
+
+        // solo quien lo creo
+        if (pedido.vendedor.toSting() !== ctx.usuario.id) {
+          throw new Error('Acceso denegado.')
+        }
+
+        // retornar resultado
+        return pedido;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    obtenerPedidosEstado: async (_, { estado }, ctx) => {
+      try {
+        const pedidos = await Pedido.find({ vendedor: ctx.usuario.id, estado });
+        return pedidos;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   },
   Mutation: {
     nuevoUsuario: async (_, { input }) => {
@@ -225,6 +268,68 @@ const resolvers = {
       // Guardar en DB
       const resultado = pedido.save();
       return resultado;
+    },
+    actualizarPedido: async (_, { id, input }, ctx) => {
+      try {
+        // si el pedido exite
+        const pedido = await Pedido.findById(id);
+        if (!pedido) {
+          throw new Error ('El pedido no exite');
+        }
+
+        // si el cliente existe
+        const cliente = await Cliente.findById(input.cliente);
+        if (!cliente) {
+          throw new Error ('El cliente no exite');
+        }
+
+        // si cliente y pedido pertenece al vendedor
+        if (cliente.vendedor.toSting() !== ctx.usuario.id) {
+          throw new Error('Acceso denegado.');
+        }
+
+        // Revisar si hay stock
+        if (input.pedido) {
+          for await (const articulo of input.pedido) {
+            const { id } = articulo;
+
+            const producto = await Producto.findById(id);
+
+            if (articulo.cantidad > producto.existencia) {
+              throw new Error(`El ${producto.nombre} excede la candidad disponible.`);
+            } else {
+              // Restar cantidad en disponible
+              producto.existencia = producto.existencia + pedido.pedido.cantidad - articulo.cantidad;
+              await producto.save();
+            }
+          }
+        }
+        // Crear pedido
+        const resultado = await Pedido.findOneAndUpdate({ _id: id }, input, { new: true });
+        return resultado;
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    eliminarPedido: async (_, { id }, ctx) => {
+      try {
+        // Revisar si extiste
+        let pedido = await Pedido.findById(id);
+        if(!pedido) {
+          throw new Error('Pedido no encontrado.');
+        }
+
+        // Verificar si el vendedor es quien edita
+        if (pedido.vendedor.toSting() !== ctx.usuario.id) {
+          throw new Error('Acceso denegado.');
+        }
+
+        // Eliminar
+        await Pedido.findOneAndDelete({ _id: id});
+        return 'Pedido eliminado.';
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 }

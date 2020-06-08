@@ -23,6 +23,12 @@ const typeDefs = gql`
     obtenerClientes: [Cliente]
     obtenerClientesVendedor(id: ID!): [Cliente]
     obtenerCliente(id: ID!): cliente
+
+    # Pedidos
+    obtenerPedidos: [Pedido]
+    obtenerPedidosVendedor: [Pedido]
+    obtenerPedido(id: ID!): Pedido
+    obtenerPedidosEstado(estado: String!): [Pedido]
   }
   type Producto {
     id: ID
@@ -82,8 +88,8 @@ const typeDefs = gql`
   }
   input PedidoInput {
     pedido: [PedidoProducto]
-    total: Float!
-    cliente: ID!
+    total: Float
+    cliente: ID
     estado: EstadoPedido
   }
 
@@ -107,6 +113,8 @@ const typeDefs = gql`
     eliminarCliente(id: ID!): String
     # Pedidos
     nuevoPedido(input: PedidoInput): Pedido
+    actualizarPedido(id: ID!, input: PedidoInput): Pedido
+    eliminarPedido(id: ID!): String
   }
 `;
 
