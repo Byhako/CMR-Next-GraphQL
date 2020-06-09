@@ -29,6 +29,11 @@ const typeDefs = gql`
     obtenerPedidosVendedor: [Pedido]
     obtenerPedido(id: ID!): Pedido
     obtenerPedidosEstado(estado: String!): [Pedido]
+
+    # Busquedas avanzadas
+    mejoresClientes: [TopCliente]
+    mejoresVendedores: [TopVendedor],
+    buscarProducto(texto: String!): [Producto]
   }
   type Producto {
     id: ID
@@ -45,6 +50,14 @@ const typeDefs = gql`
     email: String
     telefono: String
     vendedor: ID
+  }
+  type TopCliente {
+    total: Float
+    cliente: [Cliente]
+  }
+  type TopVendedor {
+    total: Float
+    vendedor: [Usuario]
   }
   type Pedido {
     id: ID

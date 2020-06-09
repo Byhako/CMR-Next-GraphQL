@@ -109,6 +109,54 @@ const resolvers = {
       } catch (error) {
         console.error(error);
       }
+    },
+    mejoresClientes: async () => {
+      const clientes = await Pedido.aggregate([
+        { $match: { estado: 'COMPLETADO' } },
+        { $group: {
+          _id: '$cliente',
+          total: { $sum: '$total' }
+        }},
+        {
+          $lookup: {
+            from: 'clientes',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'cliente   '
+          }
+        },
+        { $limit: 9 },
+        {
+          $sort: { total: -1 }
+        }
+      ]);
+      return clientes;
+    },
+    mejoresVendedores: async () => {
+      const vendedores = await Pedido.aggregate([
+        { $match: { estate: 'COMPLETADO' } },
+        {
+          $group: {
+            _id: 'vendedor',
+            total: { $sum: 'total' }
+          }
+        },
+        {
+          $lookup: {
+            from: 'usuarios',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'vendedor'
+          }
+        },
+        { $limit: 9 },
+        { $sort: { total: -1 } }
+      ]);
+      return vendedores;
+    },
+    buscarProducto: async (_, { texto }) => {
+      const productos = await Producto.find({ $text: { $search: texto }}).limit(20);
+      return productos;
     }
   },
   Mutation: {
