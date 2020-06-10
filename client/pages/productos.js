@@ -1,14 +1,14 @@
 import React from 'react';
 import Layaut from '../components/Layaut';
 
-const Nosotros = () => {
+const Productos = () => {
   return (
     <div>
       <Layaut>
-        <h2>Nosotros</h2>
+        <h1 className='text-lg text-gray-800 font-light'>Productos</h1>
       </Layaut>
     </div>
   );
 }
 
-export default Nosotros;
+export default Productos;
