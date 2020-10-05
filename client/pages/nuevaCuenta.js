@@ -2,8 +2,23 @@ import React from 'react';
 import Layaut from '../components/Layaut';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useMutation, gql } from '@apollo/client';
+
+const NUEVA_CUENTA = gql`
+  mutation nuevoUsuario($input: UsuarioInput) {
+    nuevoUsuario(input: $input) {
+      id
+      nombre
+      apellido
+      email
+    }
+  }
+`;
 
 const NuevaCuenta = () => {
+  //creando nuevos usuarios
+  const [nuevoUsuario] = useMutation(NUEVA_CUENTA);
+
   // Validación del formulario
   const formik = useFormik({
     initialValues: {
@@ -18,9 +33,18 @@ const NuevaCuenta = () => {
       email: Yup.string().email('Email invalido').required('Email requerido'),
       password: Yup.string().required('Password requerido').min(6, 'Al menos 6 caracteres')
     }),
-    onSubmit: valores => {
-      console.log('enviando', valores);
-      formik.handleReset();
+    onSubmit: async valores => {
+      try {
+        const { data } = await nuevoUsuario({
+          variables: {
+            input: valores
+          }
+        })
+        formik.handleReset();
+        console.log('%c data --> ', 'color:cyan', data )
+      } catch (error) {
+        console.error(error);
+      }
     }
   });
 

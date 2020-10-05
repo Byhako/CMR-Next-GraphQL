@@ -11,7 +11,7 @@ conectarDb();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({req}) => {
+  context: async ({req}) => {
     const token = req.header['authorization']  || '';
     if (token) {
       try {

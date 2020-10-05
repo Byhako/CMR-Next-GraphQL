@@ -22,7 +22,7 @@ const typeDefs = gql`
     # Clientes
     obtenerClientes: [Cliente]
     obtenerClientesVendedor(id: ID!): [Cliente]
-    obtenerCliente(id: ID!): cliente
+    obtenerCliente(id: ID!): Cliente
 
     # Pedidos
     obtenerPedidos: [Pedido]
