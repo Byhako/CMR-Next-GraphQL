@@ -12,7 +12,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({req}) => {
-    const token = req.header['authorization']  || '';
+    const token = req.headers['authorization']  || '';
     if (token) {
       try {
         const usuario = await jwt.verify(token, process.env.SECRETO);
