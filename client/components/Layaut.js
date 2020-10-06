@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import Sidebar from './Sidebar';
+import Header from './Header';
 import { useRouter } from 'next/router';
 
 const Layaut = ({children}) => {
@@ -21,7 +22,8 @@ const Layaut = ({children}) => {
         <div className='bg-gray-200 min-h-screen'>
           <div className='flex min-h-screen'>
             <Sidebar />
-            <main className='p-5 w-full'>
+            <main className='p-2 w-full sm:p-5'>
+              <Header />
               {children}
             </main>
           </div>
