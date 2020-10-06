@@ -21,7 +21,7 @@ const Layaut = ({children}) => {
         <div className='bg-gray-200 min-h-screen'>
           <div className='flex min-h-screen'>
             <Sidebar />
-            <main className='p-5'>
+            <main className='p-5 w-full'>
               {children}
             </main>
           </div>

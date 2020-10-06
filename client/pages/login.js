@@ -38,6 +38,7 @@ const Login = () => {
             input: valores
           }
         });
+        console.log(data)
         setMensaje(`Bienvenido.`);
         const { token } = data.autenticarUsuario;
         localStorage.setItem('token', token);

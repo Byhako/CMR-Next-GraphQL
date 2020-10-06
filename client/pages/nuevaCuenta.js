@@ -22,7 +22,6 @@ const NuevaCuenta = () => {
   //creando nuevos usuarios
   const [nuevoUsuario] = useMutation(NUEVA_CUENTA);
 
-
   // Validación del formulario
   const formik = useFormik({
     initialValues: {
@@ -44,7 +43,6 @@ const NuevaCuenta = () => {
             input: valores
           }
         })
-        console.log('%c data --> ', 'color:cyan', data )
         setMensaje(`Usuario ${data.nuevoUsuario.nombre.toUpperCase()} creado con exito.`);
         setTimeout(() => {
           formik.handleReset();
